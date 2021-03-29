@@ -73,7 +73,7 @@
         <LExpSel>0</LExpSel>
       </OPTXL>
       <OPTFL>
-        <tvExp>0</tvExp>
+        <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
         <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
@@ -195,13 +195,13 @@
         </Mm>
       </MemoryWindow3>
       <ScvdPack>
-        <Filename>C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.3.0\CMSIS\RTOS2\RTX\RTX5.scvd</Filename>
-        <Type>ARM.CMSIS.5.3.0</Type>
+        <Filename>C:\Users\antoi\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\RTX5.scvd</Filename>
+        <Type>ARM.CMSIS.5.7.0</Type>
         <SubType>1</SubType>
       </ScvdPack>
       <ScvdPack>
-        <Filename>C:\Keil_v5\ARM\PACK\Keil\ARM_Compiler\1.6.0\EventRecorder.scvd</Filename>
-        <Type>Keil.ARM_Compiler.1.6.0</Type>
+        <Filename>C:\Users\antoi\AppData\Local\Arm\Packs\Keil\ARM_Compiler\1.6.1\EventRecorder.scvd</Filename>
+        <Type>Keil.ARM_Compiler.1.6.1</Type>
         <SubType>1</SubType>
       </ScvdPack>
       <Tracepoint>
@@ -248,6 +248,7 @@
       <pMultCmdsp></pMultCmdsp>
       <DebugDescription>
         <Enable>1</Enable>
+        <EnableFlashSeq>0</EnableFlashSeq>
         <EnableLog>0</EnableLog>
         <Protocol>2</Protocol>
         <DbgClock>10000000</DbgClock>

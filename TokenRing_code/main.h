@@ -42,6 +42,7 @@ extern osMessageQueueId_t	queue_macR_id;
 extern osMessageQueueId_t	queue_phyS_id;
 extern osMessageQueueId_t	queue_dbg_id;
 extern osMessageQueueId_t	queue_macS_id;
+extern osMessageQueueId_t	queue_macS_b_id;
 extern osMessageQueueId_t  queue_chatR_id;
 extern osMessageQueueId_t  queue_timeR_id;
 extern osMessageQueueId_t  queue_lcd_id;

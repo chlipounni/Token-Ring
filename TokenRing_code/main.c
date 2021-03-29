@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////////////////////////////
 /// \file main.c
 /// \brief Tokenring intialisation
 /// \author Pascal Sartoretti (pascal dot sartoretti at hevs dot ch)
@@ -34,6 +34,7 @@ osMessageQueueId_t	queue_macR_id;
 osMessageQueueId_t	queue_phyS_id;
 osMessageQueueId_t	queue_dbg_id;
 osMessageQueueId_t	queue_macS_id;
+osMessageQueueId_t  queue_macS_b_id;
 osMessageQueueId_t  queue_chatR_id;
 osMessageQueueId_t  queue_chatS_id;
 osMessageQueueId_t  queue_timeR_id;
@@ -41,11 +42,16 @@ osMessageQueueId_t  queue_timeS_id;
 osMessageQueueId_t  queue_lcd_id;
 osMessageQueueId_t  queue_keyboard_id;
 osMessageQueueId_t  queue_usartR_id;
+osMessageQueueId_t  queue_macR_boucle_id;
+
 const osMessageQueueAttr_t queue_macR_attr = {
 	.name = "MAC_RECEIVER"  	
 };
 const osMessageQueueAttr_t queue_macS_attr = {
 	.name = "MAC_SENDER  "  	
+};
+const osMessageQueueAttr_t queue_macS_b_attr = {
+	.name = "MAC_SENDER_BOUCLE  "  	
 };
 const osMessageQueueAttr_t queue_phyS_attr = {
 	.name = "PH_SENDER   "  	
@@ -374,6 +380,7 @@ int main(void)
 	queue_macR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
 	queue_phyS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
 	queue_macS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
+	queue_macS_b_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 
 	queue_dbg_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
 	queue_chatR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
 	queue_chatS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
