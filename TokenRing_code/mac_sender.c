@@ -12,7 +12,7 @@
 #include "main.h"
 #include "ext_led.h"
 
-void sendToPhy (uint8_t * msg);
+static void sendToPhy (uint8_t * msg);
 uint8_t SAPI (void);
 void majTokenList(	uint8_t * msg);
 void assignQueue(struct queueMsg_t* receiver,struct queueMsg_t* sender);
@@ -28,7 +28,7 @@ void MacSender(void *argument)
 	struct queueMsg_t tokenMsg;					// queue message
 	osStatus_t retCode;									// return error code
 	uint8_t * qPtr;
-	
+	gTokenInterface.connected = 1;
 		//------------------------------------------------------------------------------
 	for (;;)														// loop until doomsday
 	{
@@ -53,7 +53,7 @@ void MacSender(void *argument)
 			case TOKEN:
 				
 				// update SAPI
-				qPtr[MYADDRESS+1] = SAPI();
+				qPtr[MYADDRESS+1] = ((gTokenInterface.connected << CHAT_SAPI)|(1<<TIME_SAPI));
 			
 				// maj token list if different
 				majTokenList(qPtr);
@@ -104,11 +104,11 @@ void MacSender(void *argument)
 			break;
 			
 			case START:
-				
+				gTokenInterface.connected = 1;
 			break;
 			
 			case STOP:
-				
+				gTokenInterface.connected = 0;
 			break;
 			
 			default:
@@ -147,26 +147,23 @@ void majTokenList(	uint8_t * msg){
 	//if change => send TOKEN_LIST to LCD
 	if(changed){
 
-	queueMsg.type = TOKEN_LIST;
-	queueMsg.anyPtr = NULL;
-	queueMsg.addr = NULL;
-	queueMsg.sapi = NULL;
-	
-	retCode = osMessageQueuePut(
-		queue_lcd_id,
-		&queueMsg,
-		osPriorityNormal,
-		osWaitForever);
-	
-	CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);		
+		queueMsg.type = TOKEN_LIST;
+		queueMsg.anyPtr = NULL;
+		queueMsg.addr = NULL;
+		queueMsg.sapi = NULL;
+		
+		retCode = osMessageQueuePut(
+			queue_lcd_id,
+			&queueMsg,
+			osPriorityNormal,
+			osWaitForever);
+		
+		CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);		
 	}
 }
 
-uint8_t SAPI (){
-	return ((1<<CHAT_SAPI)|(1<<TIME_SAPI));
-}
 
-void sendToPhy (uint8_t * msg){
+static void sendToPhy (uint8_t * msg){
 	struct queueMsg_t queueMsg;
 	osStatus_t retCode;
 	
