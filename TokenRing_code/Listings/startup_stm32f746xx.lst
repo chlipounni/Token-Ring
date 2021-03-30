@@ -957,44 +957,34 @@ ARM Macro Assembler    Page 15
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M7.fp.sp --apcs=
 interwork --depend=.\objects\startup_stm32f746xx.d -o.\objects\startup_stm32f74
 6xx.o -I.\RTE\CMSIS -I.\RTE\Compiler -I.\RTE\Device\STM32F746NGHx -I.\RTE\Hesso
-_pack -I.\RTE\_Target_1 -IC:\Users\antoi\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.
-0\CMSIS\Core\Include -IC:\Users\antoi\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\C
-MSIS\Driver\Include -IC:\Users\antoi\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CM
-SIS\RTOS2\Include -IC:\Users\antoi\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSI
-S\RTOS2\RTX\Include -IC:\Users\antoi\AppData\Local\Arm\Packs\HessoValais\Extens
-ion_board\1.2.0\extension_board -IC:\Users\antoi\AppData\Local\Arm\Packs\Keil\A
-RM_Compiler\1.6.1\Include -IC:\Users\antoi\AppData\Local\Arm\Packs\Keil\STM32F7
-xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F7xx\Include -IC:\Users\antoi\AppDat
-a\Local\Arm\Packs\Keil\STM32F7xx_DFP\2.13.0\Drivers\STM32F7xx_HAL_Driver\Inc -I
-C:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx -IC:\Users\anto
-i\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\boards\base\STM32F746-Discov
-ery -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\drivers\g
-disp\STM32LTDC -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugf
-x\drivers\ginput\touch\FT5336 -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGF
-X_lib\2.0.0\ugfx\src -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0
-.0\ugfx\src\gadc -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\u
+_pack -I.\RTE\_Target_1 -IC:\Keil_v5\ARM\CMSIS\5.5.1\CMSIS\Core\Include -IC:\Ke
+il_v5\ARM\CMSIS\5.5.1\CMSIS\Driver\Include -IC:\Keil_v5\ARM\CMSIS\5.5.1\CMSIS\R
+TOS2\Include -IC:\Keil_v5\ARM\CMSIS\5.5.1\CMSIS\RTOS2\RTX\Include -IC:\Keil_v5\
+HessoValais\Extension_board\1.2.0\extension_board -IC:\Keil_v5\Keil\ARM_Compile
+r\1.6.1\Include -IC:\Keil_v5\Keil\STM32F7xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\
+STM32F7xx\Include -IC:\Keil_v5\Keil\STM32F7xx_DFP\2.11.0\Drivers\STM32F7xx_HAL_
+Driver\Inc -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx -IC:\Keil_v5\uGFX\uGFX_lib\2.0
+.0\ugfx\boards\base\STM32F746-Discovery -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\d
+rivers\gdisp\STM32LTDC -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\drivers\ginput\tou
+ch\FT5336 -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src -IC:\Keil_v5\uGFX\uGFX_lib\
+2.0.0\ugfx\src\gadc -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gaudio -IC:\Keil_
+v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gdisp -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src
+\gdisp\fonts -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gdisp\mcufont -IC:\Keil_
+v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gdriver -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\s
+rc\gevent -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gfile -IC:\Keil_v5\uGFX\uGF
+X_lib\2.0.0\ugfx\src\ginput -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gmisc -IC
 
 
 
 ARM Macro Assembler    Page 16 
 
 
-gfx\src\gaudio -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugf
-x\src\gdisp -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\s
-rc\gdisp\fonts -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugf
-x\src\gdisp\mcufont -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.
-0\ugfx\src\gdriver -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0
-\ugfx\src\gevent -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\u
-gfx\src\gfile -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx
-\src\ginput -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\s
-rc\gmisc -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\src\
-gos -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\src\gqueu
-e -IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\src\gtimer 
--IC:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\src\gtrans -I
-C:\Users\antoi\AppData\Local\Arm\Packs\uGFX\uGFX_lib\2.0.0\ugfx\src\gwin --pred
-efine="__UVISION_VERSION SETA 528" --predefine="_RTE_ SETA 1" --predefine="STM3
-2F746xx SETA 1" --list=.\listings\startup_stm32f746xx.lst RTE\Device\STM32F746N
-GHx\startup_stm32f746xx.s
+:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gos -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugf
+x\src\gqueue -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gtimer -IC:\Keil_v5\uGFX
+\uGFX_lib\2.0.0\ugfx\src\gtrans -IC:\Keil_v5\uGFX\uGFX_lib\2.0.0\ugfx\src\gwin 
+--predefine="__UVISION_VERSION SETA 528" --predefine="_RTE_ SETA 1" --predefine
+="STM32F746xx SETA 1" --list=.\listings\startup_stm32f746xx.lst RTE\Device\STM3
+2F746NGHx\startup_stm32f746xx.s
 
 
 
