@@ -13,6 +13,9 @@
 #include "ext_led.h"
 
 void sendToPhy (uint8_t * msg);
+uint8_t SAPI (void);
+void majTokenList(	uint8_t * msg);
+void assignQueue(struct queueMsg_t* receiver,struct queueMsg_t* sender);
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +25,9 @@ void MacSender(void *argument)
 {
 	uint8_t * msg;
 	struct queueMsg_t queueMsg;					// queue message
+	struct queueMsg_t tokenMsg;					// queue message
 	osStatus_t retCode;									// return error code
+	uint8_t * qPtr;
 	
 		//------------------------------------------------------------------------------
 	for (;;)														// loop until doomsday
@@ -37,6 +42,8 @@ void MacSender(void *argument)
 			osWaitForever); 
     CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);
 		
+		qPtr = queueMsg.anyPtr;
+		
 		switch (queueMsg.type){
 			
 			case DATA_IND :
@@ -44,7 +51,39 @@ void MacSender(void *argument)
 			break;
 			
 			case TOKEN:
-			Ext_LED_PWM(2,100);										// token is in station
+				
+				// update SAPI
+				qPtr[MYADDRESS+1] = SAPI();
+			
+				// maj token list if different
+				majTokenList(qPtr);
+			
+				// save token
+				assignQueue(&tokenMsg,&queueMsg);
+				
+				// get internal queue
+				retCode = osMessageQueueGet( 	
+					queue_macS_id,
+					&queueMsg,
+					NULL,
+					0); 	// return instantally
+				
+				if(retCode == osOK ){
+					// push internal msg
+					
+					// mise en forme
+					msg = queueMsg.anyPtr;
+					
+					
+					// send
+					sendToPhy(msg);
+				}
+				else{
+					// redonne le token
+					sendToPhy(tokenMsg.anyPtr);
+				}
+				
+			
 			break;
 			
 			case DATABACK:
@@ -81,6 +120,51 @@ void MacSender(void *argument)
 	}	
 }
 
+void assignQueue(struct queueMsg_t* receiver,struct queueMsg_t* sender){
+	receiver->addr = sender->addr;
+	receiver->anyPtr = sender->anyPtr;
+	receiver->sapi = sender->sapi;
+	receiver->type = sender->type;
+}
+
+void majTokenList(	uint8_t * msg){
+	uint8_t changed = 0;
+	struct queueMsg_t queueMsg;
+	osStatus_t retCode;
+	
+	//check if change
+	if(msg[0] != TOKEN_TAG){
+		return;
+	}
+	
+	for(int i = 1; i <= TOKENSIZE-3;i++){	// 1 to 16
+		if(msg[i] != gTokenInterface.station_list[i-1]){
+			gTokenInterface.station_list[i-1] = msg[i];
+			changed = 1;
+		}
+	}
+	
+	//if change => send TOKEN_LIST to LCD
+	if(changed){
+
+	queueMsg.type = TOKEN_LIST;
+	queueMsg.anyPtr = NULL;
+	queueMsg.addr = NULL;
+	queueMsg.sapi = NULL;
+	
+	retCode = osMessageQueuePut(
+		queue_lcd_id,
+		&queueMsg,
+		osPriorityNormal,
+		osWaitForever);
+	
+	CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);		
+	}
+}
+
+uint8_t SAPI (){
+	return ((1<<CHAT_SAPI)|(1<<TIME_SAPI));
+}
 
 void sendToPhy (uint8_t * msg){
 	struct queueMsg_t queueMsg;
