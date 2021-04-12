@@ -28,6 +28,15 @@ void MacSender(void *argument)
 	struct queueMsg_t tokenMsg;					// queue message
 	osStatus_t retCode;									// return error code
 	uint8_t * qPtr;
+	uint8_t length;
+
+	uint8_t srcAddr = 0;
+	uint8_t srcSAPI = 0;
+	uint8_t dstAddr = 0;
+	uint8_t dstSAPI = 0;
+
+	uint8_t sum = 0;
+
 	gTokenInterface.connected = 1;
 		//------------------------------------------------------------------------------
 	for (;;)														// loop until doomsday
@@ -47,6 +56,45 @@ void MacSender(void *argument)
 		switch (queueMsg.type){
 
 			case DATA_IND :
+				srcAddr = MYADDRESS;
+				dstAddr = queueMsg.addr;
+				srcSAPI = queueMsg.sapi;
+				dstSAPI = queueMsg.sapi;		// consider to send to the same sapi as the src
+
+				// shift tableaux
+				length = strlen(qPtr);
+				memcpy(&qPtr[3],qPtr,length*sizeof(uint8_t));
+
+				// length
+				qPtr[2] = length;
+
+				// control src
+				qPtr[0] = ((srcAddr&0x0F)<<3) + (srcSAPI&0x07);
+
+				// control dst
+				qPtr[1] = ((dstAddr&0x0F)<<3) + (dstSAPI&0x07);
+
+				// status (checksum)
+				for(uint8_t i=0; i<length+3; i++){
+						sum += qPtr[i];
+				}
+
+				qPtr[length+3] = (sum & 0x3F)<<2;
+
+				// prepare message
+				// queueMsg->sapi = 0;
+				// queueMsg->addr = 0;
+
+				// save for databack !
+
+				// push To queue
+				retCode = osMessageQueuePut(
+					queue_macS_b_id,
+					&queueMsg,
+					osPriorityNormal,
+					osWaitForever);
+
+				CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);
 
 			break;
 
@@ -63,7 +111,7 @@ void MacSender(void *argument)
 
 				// get internal queue
 				retCode = osMessageQueueGet(
-					queue_macS_id,
+					queue_macS_b_id,
 					&queueMsg,
 					NULL,
 					0); 	// return instantally
@@ -86,7 +134,7 @@ void MacSender(void *argument)
 			break;
 
 			case DATABACK:
-
+				
 			break;
 
 			case NEW_TOKEN:
