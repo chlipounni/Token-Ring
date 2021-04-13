@@ -16,6 +16,7 @@ static void sendToPhy (uint8_t * msg);
 uint8_t SAPI (void);
 void majTokenList(	uint8_t * msg);
 void assignQueue(struct queueMsg_t* receiver,struct queueMsg_t* sender);
+void macError(char msg[]);
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -23,12 +24,18 @@ void assignQueue(struct queueMsg_t* receiver,struct queueMsg_t* sender);
 //////////////////////////////////////////////////////////////////////////////////
 void MacSender(void *argument)
 {
+	char ERROR_MSG[255];
+	
 	uint8_t * msg;
 	struct queueMsg_t queueMsg;					// queue message
 	struct queueMsg_t tokenMsg;					// queue message
+	struct queueMsg_t saveMsg;						// queue message
+	struct queueMsg_t newMsg;						// queue message
 	osStatus_t retCode;									// return error code
 	uint8_t * qPtr;
-	uint8_t length;
+	uint8_t * newqPtr;
+	uint8_t length;	
+	uint8_t status = 0;
 
 	uint8_t srcAddr = 0;
 	uint8_t srcSAPI = 0;
@@ -53,6 +60,10 @@ void MacSender(void *argument)
 
 		qPtr = queueMsg.anyPtr;
 
+		if(retCode != osOK){
+			continue;
+		}
+		
 		switch (queueMsg.type){
 
 			case DATA_IND :
@@ -60,26 +71,34 @@ void MacSender(void *argument)
 				dstAddr = queueMsg.addr;
 				srcSAPI = queueMsg.sapi;
 				dstSAPI = queueMsg.sapi;		// consider to send to the same sapi as the src
-
-				// shift tableaux
 				length = strlen(qPtr);
-				memcpy(&qPtr[3],qPtr,length*sizeof(uint8_t));
 
+				// alloc memory
+				newMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);		// TODO => check if assez place dans la queue macs b
+			
+				newqPtr = newMsg.anyPtr;
+			
+				// shift tableaux		
+				memcpy(&newqPtr[3],qPtr,length*sizeof(uint8_t));
+
+				// free old memory
+				osMemoryPoolFree(memPool,queueMsg.anyPtr);
+			
 				// length
-				qPtr[2] = length;
+				newqPtr[2] = length;
 
 				// control src
-				qPtr[0] = ((srcAddr&0x0F)<<3) + (srcSAPI&0x07);
+				newqPtr[0] = ((srcAddr&0x0F)<<3) + (srcSAPI&0x07);
 
 				// control dst
-				qPtr[1] = ((dstAddr&0x0F)<<3) + (dstSAPI&0x07);
-
+				newqPtr[1] = ((dstAddr&0x0F)<<3) + (dstSAPI&0x07);
+				sum = 0;
 				// status (checksum)
 				for(uint8_t i=0; i<length+3; i++){
-						sum += qPtr[i];
+						sum += newqPtr[i];
 				}
 
-				qPtr[length+3] = (sum & 0x3F)<<2;
+				newqPtr[length+3] = (sum & 0x3F)<<2;
 
 				// prepare message
 				// queueMsg->sapi = 0;
@@ -90,7 +109,7 @@ void MacSender(void *argument)
 				// push To queue
 				retCode = osMessageQueuePut(
 					queue_macS_b_id,
-					&queueMsg,
+					&newMsg,
 					osPriorityNormal,
 					osWaitForever);
 
@@ -119,11 +138,14 @@ void MacSender(void *argument)
 				if(retCode == osOK ){
 					// push internal msg
 
-					// mise en forme
-					msg = queueMsg.anyPtr;
+					// create a copy !
+					saveMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);
+					
+					//cpy all
+					memcpy(saveMsg.anyPtr,queueMsg.anyPtr,MAX_BLOCK_SIZE*sizeof(uint8_t));
 
 					// send
-					sendToPhy(msg);
+					sendToPhy(queueMsg.anyPtr);
 				}
 				else{
 					// redonne le token
@@ -134,7 +156,47 @@ void MacSender(void *argument)
 			break;
 
 			case DATABACK:
-				
+					dstAddr = qPtr[1]>>3;
+					length = qPtr[2];
+					status = qPtr[3+length];
+			
+					if((status & 0x02)>>1 == 1){	// if read bit == 1
+						
+						if((status & 0x01) == 1 ){	// if ack bit == 1
+							// sunny day
+							
+							// free saveMsg if ack is 1 and read is 1
+							osMemoryPoolFree(memPool,saveMsg.anyPtr);
+					
+							// redonne le token
+							sendToPhy(tokenMsg.anyPtr);
+						}
+						else{
+							// problème de transmission
+							
+							// resend msg
+							
+							// create a copy !
+							newMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);
+							
+							//cpy all
+							memcpy(newMsg.anyPtr,saveMsg.anyPtr,MAX_BLOCK_SIZE*sizeof(uint8_t));
+
+							// send
+							sendToPhy(newMsg.anyPtr);
+						}
+					}
+					else{
+						sprintf(ERROR_MSG,"Station %d deconnected\nMessage lost !",dstAddr+1);
+						
+						macError(ERROR_MSG);
+						
+						// redonne le token
+						sendToPhy(tokenMsg.anyPtr);
+					}
+					
+					// free databack msg
+					osMemoryPoolFree(memPool,queueMsg.anyPtr);
 			break;
 
 			case NEW_TOKEN:
@@ -208,6 +270,28 @@ void majTokenList(	uint8_t * msg){
 		CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);
 	}
 }
+
+void macError(char msg[]){
+	struct queueMsg_t queueMsg;
+	osStatus_t retCode;
+
+	queueMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);
+	
+	strcpy(queueMsg.anyPtr,msg);
+
+	queueMsg.type = MAC_ERROR;
+	queueMsg.addr = MYADDRESS;
+	queueMsg.sapi = NULL;
+
+	retCode = osMessageQueuePut(
+		queue_lcd_id,
+		&queueMsg,
+		osPriorityNormal,
+		osWaitForever);
+
+	CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);
+}
+
 
 
 static void sendToPhy (uint8_t * msg){

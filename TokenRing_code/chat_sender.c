@@ -22,7 +22,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	struct queueMsg_t queueMsg;					// queue message
 	osStatus_t retCode;
 	 
-	if(GPIO_Pin == GPIO_PIN_8)
+	if((GPIO_Pin == GPIO_PIN_8)&&(ext_kbChar != 0))
 	{
 		queueMsg.addr = ext_kbChar;
 		//----------------------------------------------------------------------------

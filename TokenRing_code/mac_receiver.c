@@ -64,9 +64,11 @@ void MacReceiver(void *argument)
 			status = qPtr[3+length];
 
 			// if destination is us
-			if(dstAddr == MYADDRESS){
+			if(dstAddr == MYADDRESS || dstAddr == BROADCAST_ADDRESS){
 				// => check sapi => redirect
+				
 
+				
 				// read bit to 1
 				qPtr[3+length] |= 0x02;
 
@@ -108,8 +110,16 @@ void MacReceiver(void *argument)
 					};
 				}
 
-				// send databack to others (via TO_PHY)
-				sendToPhy(qPtr);
+				if(srcAddr == MYADDRESS){	// we are the sender !
+					// del msg
+					sendDataBack(qPtr,srcAddr,srcSAPI);
+				}
+				else{
+					// send databack to others (via TO_PHY)
+					sendToPhy(qPtr);
+				}
+				
+
 			}
 			// elsif src is us
 			else if(srcAddr == MYADDRESS){

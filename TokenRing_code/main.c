@@ -369,7 +369,7 @@ int main(void)
 	//------------------------------------------------------------------------------
 	// create memory pool
 	//------------------------------------------------------------------------------
-	memPool = osMemoryPoolNew(8,MAX_BLOCK_SIZE,NULL);	
+	memPool = osMemoryPoolNew(16,MAX_BLOCK_SIZE,NULL);	
 	//------------------------------------------------------------------------------
 	// create event flag
 	//------------------------------------------------------------------------------
@@ -379,8 +379,8 @@ int main(void)
 	//------------------------------------------------------------------------------	
 	queue_macR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
 	queue_phyS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_macS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_macS_b_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 
+	queue_macS_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL); 	
+	queue_macS_b_id = osMessageQueueNew(8,sizeof(struct queueMsg_t),NULL); 
 	queue_dbg_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
 	queue_chatR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
 	queue_chatS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
