@@ -54,6 +54,9 @@ void MacReceiver(void *argument)
 		if(qPtr[0] == TOKEN_TAG){
 			// this is a token !!!!!!!!
 			sendToken(qPtr);
+			#if VERBOSE_MODE == 1
+			printf("[MAC_RECEIVER] send token to mac_sender !\r\n");
+			#endif
 		}
 		else{
 			srcAddr = qPtr[0]>>3;
@@ -66,9 +69,9 @@ void MacReceiver(void *argument)
 			// if destination is us
 			if(dstAddr == MYADDRESS || dstAddr == BROADCAST_ADDRESS){
 				// => check sapi => redirect
-				
 
-				
+
+
 				// read bit to 1
 				qPtr[3+length] |= 0x02;
 
@@ -86,6 +89,10 @@ void MacReceiver(void *argument)
 					queueMsgToSend.anyPtr = msg;
 					queueMsgToSend.addr = srcAddr;
 					queueMsgToSend.sapi = srcSAPI;
+
+					#if VERBOSE_MODE == 1
+					printf("[MAC_RECEIVER] crc OK, send to SAPI !\r\n");
+					#endif
 
 					// send to the good queue
 					switch(dstSAPI){
@@ -113,22 +120,32 @@ void MacReceiver(void *argument)
 				if(srcAddr == MYADDRESS){	// we are the sender !
 					// del msg
 					sendDataBack(qPtr,srcAddr,srcSAPI);
+					#if VERBOSE_MODE == 1
+					printf("[MAC_RECEIVER] send DATABACK to MacSender (BROADCAST) !\r\n");
+					#endif
 				}
 				else{
 					// send databack to others (via TO_PHY)
 					sendToPhy(qPtr);
+					#if VERBOSE_MODE == 1
+					printf("[MAC_RECEIVER] send DATABACK to PHY (to src) !\r\n");
+					#endif
 				}
-				
-
 			}
 			// elsif src is us
 			else if(srcAddr == MYADDRESS){
 				// => databack
 				sendDataBack(qPtr,srcAddr,srcSAPI);
+				#if VERBOSE_MODE == 1
+				printf("[MAC_RECEIVER] send DATABACK to MacSender (NORMAL) !\r\n");
+				#endif
 			}
 			else{
 				// forward to phy (to another station) not for us
 				sendToPhy(qPtr);
+				#if VERBOSE_MODE == 1
+				printf("[MAC_RECEIVER] send data to PHY (not for us) !\r\n");
+				#endif
 			}
 		}
 	}

@@ -25,7 +25,7 @@ void macError(char msg[]);
 void MacSender(void *argument)
 {
 	char ERROR_MSG[255];
-	
+
 	uint8_t * msg;
 	struct queueMsg_t queueMsg;					// queue message
 	struct queueMsg_t tokenMsg;					// queue message
@@ -34,7 +34,7 @@ void MacSender(void *argument)
 	osStatus_t retCode;									// return error code
 	uint8_t * qPtr;
 	uint8_t * newqPtr;
-	uint8_t length;	
+	uint8_t length;
 	uint8_t status = 0;
 
 	uint8_t srcAddr = 0;
@@ -63,7 +63,7 @@ void MacSender(void *argument)
 		if(retCode != osOK){
 			continue;
 		}
-		
+
 		switch (queueMsg.type){
 
 			case DATA_IND :
@@ -73,52 +73,62 @@ void MacSender(void *argument)
 				dstSAPI = queueMsg.sapi;		// consider to send to the same sapi as the src
 				length = strlen(qPtr);
 
-				// alloc memory
-				newMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);		// TODO => check if assez place dans la queue macs b
-			
-				newqPtr = newMsg.anyPtr;
-			
-				// shift tableaux		
-				memcpy(&newqPtr[3],qPtr,length*sizeof(uint8_t));
+				// check if we have to throw away the message (queue_macS_b_id is full) => it prevents to allocate all the memory pool capacity (and block all the system)
+				if(osMessageQueueGetSpace(queue_macS_b_id) != 0){
+					// alloc memory
+					newMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);		// TODO => check if assez place dans la queue macs b
 
-				// free old memory
-				osMemoryPoolFree(memPool,queueMsg.anyPtr);
-			
-				// length
-				newqPtr[2] = length;
+					newqPtr = newMsg.anyPtr;
 
-				// control src
-				newqPtr[0] = ((srcAddr&0x0F)<<3) + (srcSAPI&0x07);
+					// shift tableaux
+					memcpy(&newqPtr[3],qPtr,length*sizeof(uint8_t));
 
-				// control dst
-				newqPtr[1] = ((dstAddr&0x0F)<<3) + (dstSAPI&0x07);
-				sum = 0;
-				// status (checksum)
-				for(uint8_t i=0; i<length+3; i++){
-						sum += newqPtr[i];
+					// free old memory
+					osMemoryPoolFree(memPool,queueMsg.anyPtr);
+
+					// length
+					newqPtr[2] = length;
+
+					// control src
+					newqPtr[0] = ((srcAddr&0x0F)<<3) + (srcSAPI&0x07);
+
+					// control dst
+					newqPtr[1] = ((dstAddr&0x0F)<<3) + (dstSAPI&0x07);
+					sum = 0;
+					// status (checksum)
+					for(uint8_t i=0; i<length+3; i++){
+							sum += newqPtr[i];
+					}
+
+					newqPtr[length+3] = (sum & 0x3F)<<2;
+
+					// prepare message
+					// queueMsg->sapi = 0;
+					// queueMsg->addr = 0;
+
+					// push To queue
+					retCode = osMessageQueuePut(
+						queue_macS_b_id,
+						&newMsg,
+						osPriorityNormal,
+						osWaitForever);
+
+					CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);
+
+					#if VERBOSE_MODE == 1
+					printf("[DATA_IND] Msg push to internal Queue !\r\n");
+					#endif
 				}
-
-				newqPtr[length+3] = (sum & 0x3F)<<2;
-
-				// prepare message
-				// queueMsg->sapi = 0;
-				// queueMsg->addr = 0;
-
-				// save for databack !
-
-				// push To queue
-				retCode = osMessageQueuePut(
-					queue_macS_b_id,
-					&newMsg,
-					osPriorityNormal,
-					osWaitForever);
-
-				CheckRetCode(retCode,__LINE__,__FILE__,CONTINUE);
-
+				else{
+					#if VERBOSE_MODE == 1
+					printf("[DATA_IND] Msg lost (msg queue full) !\r\n");
+					#endif
+					// free memory
+					osMemoryPoolFree(memPool,queueMsg.anyPtr);
+				}
 			break;
 
 			case TOKEN:
-
 				// update SAPI
 				qPtr[MYADDRESS+1] = ((gTokenInterface.connected << CHAT_SAPI)|(1<<TIME_SAPI));
 
@@ -127,7 +137,6 @@ void MacSender(void *argument)
 
 				// save token
 				assignQueue(&tokenMsg,&queueMsg);
-
 				// get internal queue
 				retCode = osMessageQueueGet(
 					queue_macS_b_id,
@@ -140,16 +149,24 @@ void MacSender(void *argument)
 
 					// create a copy !
 					saveMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);
-					
+
 					//cpy all
 					memcpy(saveMsg.anyPtr,queueMsg.anyPtr,MAX_BLOCK_SIZE*sizeof(uint8_t));
 
 					// send
 					sendToPhy(queueMsg.anyPtr);
+
+					#if VERBOSE_MODE == 1
+					printf("[TOKEN] send msg, token saved !\r\n");
+					#endif
 				}
 				else{
 					// redonne le token
 					sendToPhy(tokenMsg.anyPtr);
+
+					#if VERBOSE_MODE == 1
+					printf("[TOKEN] return Token !\r\n");
+					#endif
 				}
 
 
@@ -159,26 +176,31 @@ void MacSender(void *argument)
 					dstAddr = qPtr[1]>>3;
 					length = qPtr[2];
 					status = qPtr[3+length];
-			
+
 					if((status & 0x02)>>1 == 1){	// if read bit == 1
-						
+
 						if((status & 0x01) == 1 ){	// if ack bit == 1
 							// sunny day
-							
+							#if VERBOSE_MODE == 1
+							printf("[DATABACK] Msg OK !\r\n");
+							#endif
+
 							// free saveMsg if ack is 1 and read is 1
 							osMemoryPoolFree(memPool,saveMsg.anyPtr);
-					
+
 							// redonne le token
 							sendToPhy(tokenMsg.anyPtr);
 						}
 						else{
-							// problème de transmission
-							
+							// probleme de transmission
+							#if VERBOSE_MODE == 1
+							printf("[DATABACK] ACK error !\r\n");
+							#endif
 							// resend msg
-							
+
 							// create a copy !
 							newMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);
-							
+
 							//cpy all
 							memcpy(newMsg.anyPtr,saveMsg.anyPtr,MAX_BLOCK_SIZE*sizeof(uint8_t));
 
@@ -187,20 +209,25 @@ void MacSender(void *argument)
 						}
 					}
 					else{
-						sprintf(ERROR_MSG,"Station %d deconnected\nMessage lost !",dstAddr+1);
-						
+						#if VERBOSE_MODE == 1
+						printf("[DATABACK] READ error !\r\n");
+						#endif
+						sprintf(ERROR_MSG,"Station %d deconnected\nMessage lost !\n",dstAddr+1);
+
 						macError(ERROR_MSG);
-						
+
 						// redonne le token
 						sendToPhy(tokenMsg.anyPtr);
 					}
-					
+
 					// free databack msg
 					osMemoryPoolFree(memPool,queueMsg.anyPtr);
 			break;
 
 			case NEW_TOKEN:
-
+			#if VERBOSE_MODE == 1
+				printf("[NEW_TOKEN] created !\r\n");
+			#endif
 				msg = osMemoryPoolAlloc(memPool,osWaitForever);
 				msg[0] = TOKEN_TAG;
 
@@ -213,10 +240,16 @@ void MacSender(void *argument)
 			break;
 
 			case START:
+				#if VERBOSE_MODE == 1
+				printf("[START] connected !\r\n");
+				#endif
 				gTokenInterface.connected = 1;
 			break;
 
 			case STOP:
+				#if VERBOSE_MODE == 1
+				printf("[STOP] disconnected !\r\n");
+				#endif
 				gTokenInterface.connected = 0;
 			break;
 
@@ -237,6 +270,9 @@ void assignQueue(struct queueMsg_t* receiver,struct queueMsg_t* sender){
 }
 
 void majTokenList(	uint8_t * msg){
+
+
+
 	uint8_t changed = 0;
 	struct queueMsg_t queueMsg;
 	osStatus_t retCode;
@@ -255,6 +291,10 @@ void majTokenList(	uint8_t * msg){
 
 	//if change => send TOKEN_LIST to LCD
 	if(changed){
+
+		#if VERBOSE_MODE == 1
+		printf("[TOKEN_LIST] update list\r\n");
+		#endif
 
 		queueMsg.type = TOKEN_LIST;
 		queueMsg.anyPtr = NULL;
@@ -276,7 +316,7 @@ void macError(char msg[]){
 	osStatus_t retCode;
 
 	queueMsg.anyPtr = osMemoryPoolAlloc(memPool,osWaitForever);
-	
+
 	strcpy(queueMsg.anyPtr,msg);
 
 	queueMsg.type = MAC_ERROR;

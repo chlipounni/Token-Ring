@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "stm32f7xx_hal.h"
 #include <stdio.h>
-#include "main.h"									// tokenring constants							
+#include "main.h"									// tokenring constants
 
 #include "ext_led.h"							// use external leds
 #include "ext_uart.h"							// use external uart (for tokenring)
@@ -45,40 +45,40 @@ osMessageQueueId_t  queue_usartR_id;
 osMessageQueueId_t  queue_macR_boucle_id;
 
 const osMessageQueueAttr_t queue_macR_attr = {
-	.name = "MAC_RECEIVER"  	
+	.name = "MAC_RECEIVER"
 };
 const osMessageQueueAttr_t queue_macS_attr = {
-	.name = "MAC_SENDER  "  	
+	.name = "MAC_SENDER  "
 };
 const osMessageQueueAttr_t queue_macS_b_attr = {
-	.name = "MAC_SENDER_BOUCLE  "  	
+	.name = "MAC_SENDER_BOUCLE  "
 };
 const osMessageQueueAttr_t queue_phyS_attr = {
-	.name = "PH_SENDER   "  	
+	.name = "PH_SENDER   "
 };
 const osMessageQueueAttr_t queue_dbg_attr = {
-	.name = "DEBUGGER    "  	
+	.name = "DEBUGGER    "
 };
 const osMessageQueueAttr_t queue_chatR_attr = {
-	.name = "CHAT_REC    "  	
+	.name = "CHAT_REC    "
 };
 const osMessageQueueAttr_t queue_timeR_attr = {
-	.name = "TIME_RECEIVE"  	
+	.name = "TIME_RECEIVE"
 };
 const osMessageQueueAttr_t queue_timeS_attr = {
-	.name = "TIME_SENDER "  	
+	.name = "TIME_SENDER "
 };
 const osMessageQueueAttr_t queue_chatS_attr = {
-	.name = "CHAT_SENDER "  	
+	.name = "CHAT_SENDER "
 };
 const osMessageQueueAttr_t queue_lcd_attr = {
-	.name = "LCD MANAGER "  	
+	.name = "LCD MANAGER "
 };
 const osMessageQueueAttr_t queue_keyboard_attr = {
-	.name = "KEYBOARD    "  	
+	.name = "KEYBOARD    "
 };
 const osMessageQueueAttr_t queue_usartR_attr = {
-	.name = "USART_RECEIV"  	
+	.name = "USART_RECEIV"
 };
 //--------------------------------------------------------------------------------
 // External threads id, functions and attributes
@@ -120,68 +120,68 @@ const osThreadAttr_t debug_attr = {
 const osThreadAttr_t phy_rec_attr = {
   .stack_size = 512,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "PHY_R"  	
+//	.name = "PHY_R"
 };
 
 const osThreadAttr_t phy_snd_attr = {
   .stack_size = 512,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "PH_S"  	
+//	.name = "PH_S"
 };
 
 const osThreadAttr_t mac_rec_attr = {
-  .stack_size = 512,          	// Create the thread stack size of 256 bytes
+  .stack_size = 1024,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "MAC_R"  	
+//	.name = "MAC_R"
 };
 
 const osThreadAttr_t mac_snd_attr = {
-  .stack_size = 512,          	// Create the thread stack size of 256 bytes
+  .stack_size = 1024,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "MAC_S"  	
+//	.name = "MAC_S"
 };
 
 const osThreadAttr_t time_rec_attr = {
   .stack_size = 512,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "TIME_RECEIVER"  	
+//	.name = "TIME_RECEIVER"
 };
 
 const osThreadAttr_t time_snd_attr = {
   .stack_size = 512,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "TIME_SENDER"  	
+//	.name = "TIME_SENDER"
 };
 
 const osThreadAttr_t chat_rec_attr = {
   .stack_size = 512,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "CHAT_RECEIVER"  	
+//	.name = "CHAT_RECEIVER"
 };
 
 const osThreadAttr_t chat_snd_attr = {
   .stack_size = 512,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "CHAT_SENDER"  	
+//	.name = "CHAT_SENDER"
 };
 
 const osThreadAttr_t touch_attr = {
   .stack_size = 512,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "TOUCH"  	
+//	.name = "TOUCH"
 };
 
 const osThreadAttr_t lcd_attr = {
   .stack_size = 4096,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "LCD"  	
+//	.name = "LCD"
 };
 
 
 const osThreadAttr_t tester_attr = {
   .stack_size = 256,          	// Create the thread stack size of 256 bytes
 	.priority = osPriorityNormal, //Set initial thread priority to normal
-//	.name = "TESTER"  	
+//	.name = "TESTER"
 };
 
 
@@ -192,38 +192,38 @@ const osThreadAttr_t tester_attr = {
 //////////////////////////////////////////////////////////////////////////////////
 void DebugFrame(char * stringP)
 {
-  uint8_t  temp;                          			// used for temp calculation    
-  uint8_t  byte;                          			// used for temp byte memory    
+  uint8_t  temp;                          			// used for temp calculation
+  uint8_t  byte;                          			// used for temp byte memory
   uint8_t  table[16] = {'0','1','2','3',
                      '4','5','6','7',
                      '8','9','A','B',
                      'C','D','E','F'};
-  uint32_t size;                          			// get size of frame            
-  uint32_t i;                             			// temporary counter            
+  uint32_t size;                          			// get size of frame
+  uint32_t i;                             			// temporary counter
 
-										 
-  if ((uint8_t)stringP[1] == TOKEN_TAG)     // is it a TOKEN frame         
+
+  if ((uint8_t)stringP[1] == TOKEN_TAG)     // is it a TOKEN frame
   {
-    size = TOKENSIZE;                  			// size is TOKENSIZE            
+    size = TOKENSIZE;                  			// size is TOKENSIZE
   }
   else
   {
-    size = stringP[3] + 6;             			// calculate size of frame      
+    size = stringP[3] + 6;             			// calculate size of frame
   }
   i = 0;
-  putchar('[');                    			    // display an open bracket      
+  putchar('[');                    			    // display an open bracket
   for(i=0;i<size;i++)
   {
-    byte = stringP[i];                 			// get byte from frame          
+    byte = stringP[i];                 			// get byte from frame
     temp = (byte & 0xF0) >> 4;
-    putchar(table[temp]);           			  // display 2 hex digits         
+    putchar(table[temp]);           			  // display 2 hex digits
      temp = (byte & 0x0F);
     putchar(table[temp]);
-    putchar(' ');                   			  // insert a space               
+    putchar(' ');                   			  // insert a space
   }
-  putchar(']');                     			  // display a closed bracket     
-  putchar(0x0D);                    			  // with a <CR>                  
-  putchar(0x0A);                    			  // with a <CR>                  
+  putchar(']');                     			  // display a closed bracket
+  putchar(0x0D);                    			  // with a <CR>
+  putchar(0x0A);                    			  // with a <CR>
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -278,14 +278,14 @@ void DebugMacFrame(uint8_t preChar,uint8_t * stringP)
 //////////////////////////////////////////////////////////////////////////////////
 void CheckRetCode(uint32_t retCode,uint32_t lineNumber,char * fileName,uint8_t mode)
 {
-  if(retCode != osOK )											// if an error occcurs					
+  if(retCode != osOK )											// if an error occcurs
   {
-		printf("At line : %d\r\n",lineNumber);	// display line error						
+		printf("At line : %d\r\n",lineNumber);	// display line error
 		printf("On file : %s \r\n",fileName);
-		printf("Error   : %d\r\n",retCode);			// displays error number				
+		printf("Error   : %d\r\n",retCode);			// displays error number
 		if (mode != CONTINUE)										// if mode is not CONTINUE (0)
     {
-			while(1){}														// stays here forever						
+			while(1){}														// stays here forever
     }
   }
 }
@@ -344,9 +344,9 @@ uint32_t HAL_GetTick(void)
 /// \brief Init all and start RTX5
 //////////////////////////////////////////////////////////////////////////////////
 int main(void)
-{	
+{
 	SystemClock_Config();
-	EventRecorderInitialize(EventRecordAll,0);   
+	EventRecorderInitialize(EventRecordAll,0);
 	EventRecorderDisable (EventRecordAPI, 0xF1, 0xF1); // remove Kernel messages
 	EventRecorderDisable (EventRecordAll, 0xF4, 0xF4); // remove EventFlag messages
 	EventRecorderStart();
@@ -354,7 +354,7 @@ int main(void)
 	Ext_LED_Init();												// initialise leds
 	Ext_UART_Init(9600);									// initialise uart @ 9600 bauds
 
-	
+
 	//------------------------------------------------------------------------------
 	// default configuration station
 	//------------------------------------------------------------------------------
@@ -365,44 +365,44 @@ int main(void)
 	gTokenInterface.debugSAPI = 1;
 	gTokenInterface.debugOnline = TRUE;
 	gTokenInterface.destinationAddress = 1;
-	 
+
 	//------------------------------------------------------------------------------
 	// create memory pool
 	//------------------------------------------------------------------------------
-	memPool = osMemoryPoolNew(16,MAX_BLOCK_SIZE,NULL);	
+	memPool = osMemoryPoolNew(48,MAX_BLOCK_SIZE,NULL);	
 	//------------------------------------------------------------------------------
 	// create event flag
 	//------------------------------------------------------------------------------
 	eventFlag_id = osEventFlagsNew(NULL);
 	//------------------------------------------------------------------------------
 	// create queues
-	//------------------------------------------------------------------------------	
-	queue_macR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_phyS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_macS_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL); 	
-	queue_macS_b_id = osMessageQueueNew(8,sizeof(struct queueMsg_t),NULL); 
-	queue_dbg_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_chatR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_chatS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_timeR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_timeS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL); 	
-	queue_lcd_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL); 	
-	queue_keyboard_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL); 	
-	queue_usartR_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL); 	
+	//------------------------------------------------------------------------------
+	queue_macR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL);
+	queue_phyS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL);
+	queue_macS_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL);
+	queue_macS_b_id = osMessageQueueNew(8,sizeof(struct queueMsg_t),NULL);
+	queue_dbg_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL);
+	queue_chatR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL);
+	queue_chatS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL);
+	queue_timeR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL);
+	queue_timeS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),NULL);
+	queue_lcd_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL);
+	queue_keyboard_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL);
+	queue_usartR_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),NULL);
 
 // queues below have to be used when Keil fix the os display bug
 /*
-	queue_macR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_macR_attr); 	
-	queue_phyS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_phyS_attr); 	
-	queue_macS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_macS_attr); 	
-	queue_dbg_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_dbg_attr); 	
-	queue_chatR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_chatR_attr); 	
-	queue_chatS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_chatS_attr); 	
-	queue_timeR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_timeR_attr); 	
-	queue_timeS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_timeS_attr); 	
-	queue_lcd_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),&queue_lcd_attr); 	
-	queue_keyboard_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),&queue_keyboard_attr); 	
-	queue_usartR_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),&queue_usartR_attr); 	
+	queue_macR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_macR_attr);
+	queue_phyS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_phyS_attr);
+	queue_macS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_macS_attr);
+	queue_dbg_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_dbg_attr);
+	queue_chatR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_chatR_attr);
+	queue_chatS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_chatS_attr);
+	queue_timeR_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_timeR_attr);
+	queue_timeS_id = osMessageQueueNew(2,sizeof(struct queueMsg_t),&queue_timeS_attr);
+	queue_lcd_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),&queue_lcd_attr);
+	queue_keyboard_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),&queue_keyboard_attr);
+	queue_usartR_id = osMessageQueueNew(4,sizeof(struct queueMsg_t),&queue_usartR_attr);
 */
 	//------------------------------------------------------------------------------
 	// create threads
@@ -424,4 +424,3 @@ int main(void)
 	//------------------------------------------------------------------------------
   osKernelStart();                      // Start thread execution
 }
-

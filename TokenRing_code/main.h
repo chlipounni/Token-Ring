@@ -7,8 +7,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "stm32f7xx_hal.h"
 
-#include <stdlib.h>		
-#include <stdio.h>    
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include "gfx.h"
 #include "gui.h"
@@ -17,6 +17,7 @@
 // Constants to change the system behaviour
 //--------------------------------------------------------------------------------
 #define DEBUG_MODE				1					// mode is physical line (0) or debug (1)
+#define VERBOSE_MODE			1					//
 #define MYADDRESS   			7					// your address choice (table number)
 #define MAX_BLOCK_SIZE 		100				// size max for a frame
 
@@ -74,14 +75,14 @@ struct TOKENINTERFACE
 	uint32_t	debugAddress;					///< current debug address
 	bool_t		debugMsgToSend;				///< did debug have to send a message
 	uint32_t	destinationAddress;		///< current destination address
-	uint8_t		station_list[15];			///< 0 to 15 
+	uint8_t		station_list[15];			///< 0 to 15
 };
 extern struct TOKENINTERFACE gTokenInterface;
 
 //--------------------------------------------------------------------------------
 // events usage
 //--------------------------------------------------------------------------------
-#define	RS232_TX_EVENT 			0x0001			// ready for next byte to send		
+#define	RS232_TX_EVENT 			0x0001			// ready for next byte to send
 #define	BROADCAST_TIME_EVT 	0x0002			// time to send or not
 #define AUDIO_MSG_EVT	 			0x0020			// audio message to play
 #define AUDIO_ERROR_EVT 		0x0040			// audio error to play
